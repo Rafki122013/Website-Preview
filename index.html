@@ -1,0 +1,439 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>RapkiOffc</title>
+	<script src="https://cdn.tailwindcss.com">
+	</script>
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+	<style>
+		@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+
+		* {
+			font-family: 'Poppins', sans-serif;
+		}
+
+		body {
+			overflow-x: hidden;
+		}
+
+		.video-bg {
+			position: fixed;
+			top: 0;
+			left: 0;
+			width: 100%;
+			height: 100%;
+			z-index: -2;
+			object-fit: cover;
+		}
+
+		.video-overlay {
+			position: fixed;
+			top: 0;
+			left: 0;
+			width: 100%;
+			height: 100%;
+			background: rgba(0, 0, 0, 0.4);
+			z-index: -1;
+		}
+
+		.glass-card {
+			background: rgba(255, 255, 255, 0.1);
+			backdrop-filter: blur(20px);
+			border: 1px solid rgba(255, 255, 255, 0.2);
+			box-shadow: 0 25px 50px rgba(0, 0, 0, 0.1);
+		}
+
+		.whatsapp-btn {
+			background: linear-gradient(135deg, #25D366 0%, #128C7E 100%);
+			transform: translateY(0);
+			transition: all 0.3s ease;
+		}
+
+		.whatsapp-btn:hover {
+			background: linear-gradient(135deg, #128C7E 0%, #075E54 100%);
+			transform: translateY(-2px);
+			box-shadow: 0 10px 30px rgba(37, 211, 102, 0.3);
+		}
+
+		.profile-img {
+			animation: float 3s ease-in-out infinite;
+			transition: all 0.3s ease;
+		}
+
+		.profile-img:hover {
+			transform: scale(1.05);
+			box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+		}
+
+		@keyframes float {
+			0%,
+			100% {
+				transform: translateY(0px);
+			}
+			50% {
+				transform: translateY(-10px);
+			}
+		}
+
+		.audio-player-container {
+			background: rgba(255, 255, 255, 0.15);
+			backdrop-filter: blur(15px);
+			border: 1px solid rgba(255, 255, 255, 0.2);
+		}
+
+		.audio-progress {
+			-webkit-appearance: none;
+			width: 100%;
+			height: 6px;
+			background: rgba(255, 255, 255, 0.3);
+			border-radius: 3px;
+			outline: none;
+			cursor: pointer;
+		}
+
+		.audio-progress::-webkit-slider-thumb {
+			-webkit-appearance: none;
+			width: 18px;
+			height: 18px;
+			background: linear-gradient(135deg, #25D366 0%, #128C7E 100%);
+			border-radius: 50%;
+			cursor: pointer;
+			box-shadow: 0 2px 10px rgba(37, 211, 102, 0.5);
+		}
+
+		.audio-progress::-moz-range-thumb {
+			width: 18px;
+			height: 18px;
+			background: linear-gradient(135deg, #25D366 0%, #128C7E 100%);
+			border-radius: 50%;
+			cursor: pointer;
+			border: none;
+			box-shadow: 0 2px 10px rgba(37, 211, 102, 0.5);
+		}
+
+		.play-btn {
+			background: linear-gradient(135deg, #25D366 0%, #128C7E 100%);
+			transition: all 0.3s ease;
+		}
+
+		.play-btn:hover {
+			background: linear-gradient(135deg, #128C7E 0%, #075E54 100%);
+			transform: scale(1.05);
+		}
+
+		.scroll-container {
+			height: 100vh;
+			overflow-y: auto;
+			scroll-behavior: smooth;
+		}
+
+		.fade-in {
+			opacity: 0;
+			transform: translateY(30px);
+			animation: fadeInUp 0.8s ease forwards;
+		}
+
+		@keyframes fadeInUp {
+			to {
+				opacity: 1;
+				transform: translateY(0);
+			}
+		}
+
+		.stagger-1 {
+			animation-delay: 0.1s;
+		}
+
+		.stagger-2 {
+			animation-delay: 0.2s;
+		}
+
+		.stagger-3 {
+			animation-delay: 0.3s;
+		}
+
+		.stagger-4 {
+			animation-delay: 0.4s;
+		}
+
+		.stagger-5 {
+			animation-delay: 0.5s;
+		}
+
+		.stagger-6 {
+			animation-delay: 0.6s;
+		}
+
+		.volume-slider {
+			-webkit-appearance: none;
+			width: 60px;
+			height: 4px;
+			background: rgba(255, 255, 255, 0.3);
+			border-radius: 2px;
+			outline: none;
+		}
+
+		.volume-slider::-webkit-slider-thumb {
+			-webkit-appearance: none;
+			width: 12px;
+			height: 12px;
+			background: #25D366;
+			border-radius: 50%;
+			cursor: pointer;
+		}
+
+		@media (max-width: 768px) {
+			.glass-card {
+				margin: 10px;
+				backdrop-filter: blur(15px);
+			}
+
+			.profile-img {
+				width: 100px;
+				height: 100px;
+			}
+		}
+	</style>
+</head>
+
+<body class="scroll-container">
+	<div id="video-bg-placeholder"></div>
+	<div class="video-overlay"></div>
+
+	<div class="min-h-screen flex flex-col items-center justify-center p-4 py-20">
+		<div class="w-full max-w-md glass-card rounded-3xl overflow-hidden p-8">
+			<div class="flex flex-col items-center mb-8 fade-in stagger-1">
+				<div class="relative">
+				    <div class="profile-container"></div> 
+
+				</div>
+				<h1 class="text-2xl font-bold mt-6 text-white drop-shadow-lg">RapkiOffc</h1>
+				<p class="text-white/80 text-center mt-2 font-medium">Is Here </p>
+			</div>
+
+			<div class="space-y-4 mb-8">
+<a href="https://wa.me/6285396915266?text=halo%20om" class="whatsapp-btn fade-in stagger-2 flex items-center justify-center text-white font-semibold py-4 px-6 rounded-2xl shadow-lg hover:shadow-xl transition-all bg-gradient-to-r from-green-500 to-emerald-500">
+    <i class="fab fa-whatsapp mr-3 text-xl"></i> Owner
+</a>
+<a href="https://whatsapp.com/channel/0029Vb6M6g65fM5UqY4DTr0m" class="whatsapp-btn fade-in stagger-3 flex items-center justify-center text-white font-semibold py-4 px-6 rounded-2xl shadow-lg hover:shadow-xl transition-all bg-gradient-to-r from-green-500 to-emerald-500">
+    <i class="fab fa-whatsapp mr-3 text-xl"></i> Channel
+</a>
+<a href="https://chat.whatsapp.com/HVALqTcfSv25wHMRQVdC5D?mode=ac_c" class="whatsapp-btn fade-in stagger-4 flex items-center justify-center text-white font-semibold py-4 px-6 rounded-2xl shadow-lg hover:shadow-xl transition-all bg-gradient-to-r from-green-500 to-emerald-500">
+    <i class="fab fa-whatsapp mr-3 text-xl"></i> Group
+</a>
+<a href=" https://wa.me/48699541600?text=.rapkioffc" class="whatsapp-btn fade-in stagger-5 flex items-center justify-center text-white font-semibold py-4 px-6 rounded-2xl shadow-lg hover:shadow-xl transition-all bg-gradient-to-r from-green-500 to-emerald-500">
+    <i class="fas fa-robot mr-3 text-xl"></i> RapkiOffc Bot
+</a>
+<a href="https://youtube.com/@RapkiOfficial?si=xGMxStsN8qMeCdzW" class="whatsapp-btn fade-in stagger-6 flex items-center justify-center text-white font-semibold py-4 px-6 rounded-2xl shadow-lg hover:shadow-xl transition-all bg-gradient-to-r from-red-600 to-red-500">
+    <i class="fab fa-youtube mr-3 text-xl"></i> YouTube
+</a>
+<a href="https://www.tiktok.com/@rapkioffc_?_t=ZS-8xrCfJsLNXL&_r=1" class="whatsapp-btn fade-in stagger-8 flex items-center justify-center text-white font-semibold py-4 px-6 rounded-2xl shadow-lg hover:shadow-xl transition-all bg-gradient-to-r from-black to-gray-800">
+    <i class="fab fa-tiktok mr-3 text-xl"></i> TikTok
+</a>
+            </div> 
+
+            <!-- Audio Player -->
+           <div class="audio-player-container fade-in stagger-6 rounded-2xl p-4 md:p-6">
+    <div class="flex items-center justify-between mb-3 md:mb-4">
+        <div class="flex items-center">
+            <button id="playBtn" class="play-btn w-10 h-10 md:w-12 md:h-12 rounded-full text-white flex items-center justify-center shadow-lg">
+                <i class="fas fa-play text-sm md:text-base" id="playIcon"></i>
+            </button>
+            <div class="ml-3 md:ml-4">
+                <p class="text-xs md:text-sm font-semibold text-white">NCTS</p>
+                <p class="text-[10px] md:text-xs text-white/70">Next!</p>
+            </div>
+        </div>
+        <div class="flex items-center space-x-1 md:space-x-2">
+            <i class="fas fa-volume-up text-white/70 text-xs md:text-sm"></i>
+            <input type="range" id="volumeSlider" class="volume-slider w-12 md:w-16" min="0" max="100" value="50">
+            <span class="text-[10px] md:text-xs text-white/70 min-w-[30px] md:min-w-[35px]" id="timeDisplay">0:00</span>
+        </div>
+    </div>
+    <input type="range" id="audioProgress" class="audio-progress w-full mb-1 md:mb-2" value="0" min="0" max="100">
+    <div class="flex justify-between text-[10px] md:text-xs text-white/70 mt-1 md:mt-2">
+        <span id="currentTime">0:00</span>
+        <span id="totalTime">3:00</span>
+    </div>
+</div>
+        </div>
+       
+    </div>
+  
+<script src="config.js"></script>
+
+  <script>
+  // Audio player functionality 
+    const playBtn = document.getElementById('playBtn');
+    const playIcon = document.getElementById('playIcon');
+    const audioProgress = document.getElementById('audioProgress');
+    const timeDisplay = document.getElementById('timeDisplay');
+    const currentTime = document.getElementById('currentTime');
+    const totalTime = document.getElementById('totalTime');
+    const volumeSlider = document.getElementById('volumeSlider');
+    
+    let isPlaying = false;
+    let audio = new Audio();
+audio.src = AUDIO_SOURCE;
+    let playbackInterval;
+    let volume = 50;
+    
+    // Set initial volume
+    audio.volume = volume / 100;
+    
+    // When metadata is loaded, update duration
+    audio.addEventListener('loadedmetadata', function() {
+        updateDurationDisplay();
+    });
+    
+    function updateDurationDisplay() {
+        const duration = audio.duration;
+        const minutes = Math.floor(duration / 60);
+        const seconds = Math.floor(duration % 60);
+        totalTime.textContent = `${minutes}:${seconds < 10 ? '0' + seconds : seconds}`;
+    }
+(function() {
+    const footer = document.createElement('div');
+    footer.className = 'mt-8 text-center fade-in stagger-6';
+    footer.innerHTML = `
+        <p class="text-white/80 font-medium drop-shadow-lg">
+            Created By <span class="text-green-400 font-bold">RapkiOffc</span>
+        </p>
+    `;
+    // Tambahkan ke akhir body atau ke container tertentu
+    document.body.appendChild(footer);
+})();
+    
+    playBtn.addEventListener('click', function() {
+        isPlaying = !isPlaying;
+        if (isPlaying) {
+            playIcon.classList.remove('fa-play');
+            playIcon.classList.add('fa-pause');
+            audio.play();
+            startProgressUpdate();
+        } else {
+            playIcon.classList.remove('fa-pause');
+            playIcon.classList.add('fa-play');
+            audio.pause();
+            stopProgressUpdate();
+        }
+    });
+    
+    function startProgressUpdate() {
+        stopProgressUpdate();
+        playbackInterval = setInterval(updateAudioDisplay, 200);
+    }
+    
+    function stopProgressUpdate() {
+        if (playbackInterval) {
+            clearInterval(playbackInterval);
+        }
+    }
+
+    
+    function updateAudioDisplay() {
+        if (audio.duration) {
+            const progress = (audio.currentTime / audio.duration) * 100;
+            audioProgress.value = progress;
+            
+            const currentSeconds = Math.floor(audio.currentTime);
+            const minutes = Math.floor(currentSeconds / 60);
+            const seconds = currentSeconds % 60;
+            
+            const timeString = `${minutes}:${seconds < 10 ? '0' + seconds : seconds}`;
+            timeDisplay.textContent = timeString;
+            currentTime.textContent = timeString;
+        }
+    }
+    
+    audioProgress.addEventListener('input', function() {
+        if (audio.duration) {
+            const seekTime = (this.value / 100) * audio.duration;
+            audio.currentTime = seekTime;
+            updateAudioDisplay();
+        }
+    });
+    
+    volumeSlider.addEventListener('input', function() {
+        volume = this.value;
+        audio.volume = volume / 100;
+    });
+    
+    // Handle audio ending
+    audio.addEventListener('ended', function() {
+        isPlaying = false;
+        playIcon.classList.remove('fa-pause');
+        playIcon.classList.add('fa-play');
+        stopProgressUpdate();
+        audio.currentTime = 0;
+        updateAudioDisplay();
+    });
+    
+    // Smooth scrolling
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener('click', function (e) {
+            e.preventDefault();
+            document.querySelector(this.getAttribute('href')).scrollIntoView({
+                behavior: 'smooth'
+            });
+        });
+    });
+    
+    // Add click effects to buttons
+    document.querySelectorAll('.whatsapp-btn').forEach(btn => {
+    btn.addEventListener('click', function(e) {
+        e.preventDefault(); // Cegah default dulu untuk efek ripple
+
+        const href = this.getAttribute('href'); // Ambil href dari tombol
+
+        // Buat ripple effect
+        const ripple = document.createElement('span');
+        const rect = this.getBoundingClientRect();
+        const size = Math.max(rect.width, rect.height);
+        ripple.style.width = ripple.style.height = size + 'px';
+        ripple.style.left = (e.clientX - rect.left - size / 2) + 'px';
+        ripple.style.top = (e.clientY - rect.top - size / 2) + 'px';
+        ripple.classList.add('ripple');
+        this.appendChild(ripple);
+
+        // Hapus ripple setelah animasi selesai
+        setTimeout(() => {
+            ripple.remove();
+        }, 600);
+
+        // Arahkan ke link setelah efek dimulai
+        setTimeout(() => {
+            window.location.href = href;
+        }, 100); // Delay kecil agar ripple terlihat sebelum redirect
+    });
+});
+    
+    // Add CSS for ripple effect
+    const style = document.createElement('style');
+    style.textContent = `
+        .ripple {
+            position: absolute;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.6);
+            transform: scale(0);
+            animation: ripple 0.6s linear;
+            pointer-events: none;
+        }
+        
+        @keyframes ripple {
+            to {
+                transform: scale(4);
+                opacity: 0;
+            }
+        }
+    `;
+    document.head.appendChild(style);
+    
+    // Initialize time display
+    updateAudioDisplay();
+</script>
+</body>
+</html>
